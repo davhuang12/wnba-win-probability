@@ -1,0 +1,79 @@
+GAME_DATE,HOME_TEAM,HOME_RECORD,AWAY_TEAM,AWAY_RECORD,PREDICTED_HOME_WIN_PROBABILITY,PREDICTED_WINNER,ACTUAL_WINNER
+2026-05-15,Connecticut Sun,0W-3L,Las Vegas Aces,2W-1L,6.94,Las Vegas Aces,Las Vegas Aces
+2026-05-17,Minnesota Lynx,2W-1L,Chicago Sky,2W-1L,53.14,Minnesota Lynx,Chicago Sky
+2026-05-17,Indiana Fever,1W-2L,Seattle Storm,1W-2L,72.57,Indiana Fever,Indiana Fever
+2026-05-17,Los Angeles Sparks,1W-2L,Toronto Tempo,1W-2L,31.88,Toronto Tempo,Toronto Tempo
+2026-05-18,Dallas Wings,1W-2L,Washington Mystics,2W-1L,48.26,Washington Mystics,Dallas Wings
+2026-05-18,Portland Fire,1W-2L,Connecticut Sun,0W-4L,74.73,Portland Fire,Portland Fire
+2026-05-19,Phoenix Mercury,2W-2L,Toronto Tempo,2W-2L,57.91,Phoenix Mercury,Toronto Tempo
+2026-05-20,Indiana Fever,2W-2L,Portland Fire,2W-2L,77.18,Indiana Fever,Indiana Fever
+2026-05-20,Chicago Sky,3W-1L,Dallas Wings,2W-2L,57.76,Chicago Sky,Dallas Wings
+2026-05-20,Seattle Storm,1W-3L,Connecticut Sun,0W-5L,72.06,Seattle Storm,Connecticut Sun
+2026-05-21,New York Liberty,3W-1L,Golden State Valkyries,2W-1L,71.58,New York Liberty,Golden State Valkyries
+2026-05-21,Minnesota Lynx,2W-2L,Toronto Tempo,3W-2L,43.97,Toronto Tempo,Minnesota Lynx
+2026-05-21,Phoenix Mercury,2W-3L,Los Angeles Sparks,1W-3L,79.14,Phoenix Mercury,Los Angeles Sparks
+2026-05-22,Atlanta Dream,2W-1L,Dallas Wings,3W-2L,46.52,Dallas Wings,Atlanta Dream
+2026-05-22,Indiana Fever,3W-2L,Golden State Valkyries,3W-1L,50.77,Indiana Fever,Indiana Fever
+2026-05-22,Seattle Storm,1W-4L,Connecticut Sun,1W-5L,67.16,Seattle Storm,Seattle Storm
+2026-05-23,Chicago Sky,3W-2L,Minnesota Lynx,3W-2L,46.99,Minnesota Lynx,Minnesota Lynx
+2026-05-23,Toronto Tempo,3W-3L,Portland Fire,2W-3L,72.94,Toronto Tempo,Portland Fire
+2026-05-23,Las Vegas Aces,4W-1L,Los Angeles Sparks,2W-3L,80.31,Las Vegas Aces,Los Angeles Sparks
+2026-05-24,Atlanta Dream,3W-1L,Phoenix Mercury,2W-4L,67.24,Atlanta Dream,Atlanta Dream
+2026-05-24,New York Liberty,3W-2L,Dallas Wings,3W-3L,68.04,New York Liberty,Dallas Wings
+2026-05-24,Seattle Storm,2W-4L,Washington Mystics,2W-2L,60.07,Seattle Storm,Seattle Storm
+2026-05-25,New York Liberty,3W-3L,Portland Fire,3W-3L,71.33,New York Liberty,Portland Fire
+2026-05-25,Golden State Valkyries,3W-2L,Connecticut Sun,1W-6L,87.9,Golden State Valkyries,Golden State Valkyries
+2026-05-27,New York Liberty,3W-4L,Phoenix Mercury,2W-5L,60.2,New York Liberty,New York Liberty
+2026-05-27,Chicago Sky,3W-3L,Toronto Tempo,3W-4L,61.72,Chicago Sky,Toronto Tempo
+2026-05-27,Minnesota Lynx,4W-2L,Atlanta Dream,4W-1L,58.47,Minnesota Lynx,Minnesota Lynx
+2026-05-27,Portland Fire,4W-3L,Connecticut Sun,1W-7L,80.72,Portland Fire,Portland Fire
+2026-05-27,Seattle Storm,3W-4L,Washington Mystics,2W-3L,68.24,Seattle Storm,Washington Mystics
+2026-05-28,Dallas Wings,4W-3L,Las Vegas Aces,4W-2L,52.34,Dallas Wings,Dallas Wings
+2026-05-28,Golden State Valkyries,4W-2L,Indiana Fever,4W-2L,58.86,Golden State Valkyries,Golden State Valkyries
+2026-05-29,New York Liberty,4W-4L,Phoenix Mercury,2W-6L,65.71,New York Liberty,New York Liberty
+2026-05-29,Washington Mystics,3W-3L,Los Angeles Sparks,3W-3L,55.06,Washington Mystics,Los Angeles Sparks
+2026-05-29,Chicago Sky,3W-4L,Minnesota Lynx,5W-2L,35.1,Minnesota Lynx,Minnesota Lynx
+2026-05-29,Portland Fire,5W-3L,Atlanta Dream,4W-2L,49.39,Atlanta Dream,Atlanta Dream
+2026-05-30,Toronto Tempo,4W-4L,Seattle Storm,3W-5L,58.8,Toronto Tempo,Toronto Tempo
+2026-05-30,Connecticut Sun,1W-8L,Los Angeles Sparks,4W-3L,26.17,Los Angeles Sparks,Connecticut Sun
+2026-05-30,Portland Fire,5W-4L,Indiana Fever,4W-3L,34.94,Indiana Fever,Portland Fire
+2026-05-31,Golden State Valkyries,5W-2L,Las Vegas Aces,4W-3L,66.82,Golden State Valkyries,Las Vegas Aces
+2026-06-01,Dallas Wings,5W-3L,Seattle Storm,3W-6L,74.73,Dallas Wings,Dallas Wings
+2026-06-01,Phoenix Mercury,2W-7L,Minnesota Lynx,6W-2L,28.72,Minnesota Lynx,Minnesota Lynx
+2026-06-02,Atlanta Dream,5W-2L,Connecticut Sun,2W-8L,86.26,Atlanta Dream,Atlanta Dream
+2026-06-02,Washington Mystics,3W-4L,Chicago Sky,3W-5L,55.71,Washington Mystics,Washington Mystics
+2026-06-02,Golden State Valkyries,5W-3L,Portland Fire,6W-4L,70.31,Golden State Valkyries,Golden State Valkyries
+2026-06-02,Los Angeles Sparks,4W-4L,Las Vegas Aces,5W-3L,41.14,Las Vegas Aces,Las Vegas Aces
+2026-06-03,New York Liberty,5W-4L,Toronto Tempo,5W-4L,59.99,New York Liberty,New York Liberty
+2026-06-03,Seattle Storm,3W-7L,Phoenix Mercury,2W-8L,52.73,Seattle Storm,Phoenix Mercury
+2026-06-04,Indiana Fever,4W-4L,Atlanta Dream,6W-2L,49.25,Atlanta Dream,Indiana Fever
+2026-06-04,Minnesota Lynx,7W-2L,Golden State Valkyries,6W-3L,66.16,Minnesota Lynx,Minnesota Lynx
+2026-06-05,Chicago Sky,3W-6L,Connecticut Sun,2W-9L,71.74,Chicago Sky,Chicago Sky
+2026-06-05,Los Angeles Sparks,4W-5L,Dallas Wings,6W-3L,33.8,Dallas Wings,Dallas Wings
+2026-06-05,Portland Fire,6W-5L,Phoenix Mercury,3W-8L,62.68,Portland Fire,Phoenix Mercury
+2026-06-06,Minnesota Lynx,8W-2L,Seattle Storm,3W-8L,87.19,Minnesota Lynx,Minnesota Lynx
+2026-06-06,Las Vegas Aces,6W-3L,Golden State Valkyries,6W-4L,52.37,Las Vegas Aces,Las Vegas Aces
+2026-06-06,Atlanta Dream,6W-3L,Washington Mystics,4W-4L,65.59,Atlanta Dream,Atlanta Dream
+2026-06-06,New York Liberty,6W-4L,Indiana Fever,5W-4L,56.36,New York Liberty,New York Liberty
+2026-06-07,Toronto Tempo,5W-5L,Chicago Sky,4W-6L,64.13,Toronto Tempo,Toronto Tempo
+2026-06-07,Los Angeles Sparks,4W-6L,Portland Fire,6W-6L,54.32,Los Angeles Sparks,Los Angeles Sparks
+2026-06-08,Connecticut Sun,2W-10L,New York Liberty,7W-4L,20.23,New York Liberty,New York Liberty
+2026-06-08,Washington Mystics,4W-5L,Indiana Fever,5W-5L,39.38,Indiana Fever,Indiana Fever
+2026-06-08,Las Vegas Aces,7W-3L,Seattle Storm,3W-9L,81.23,Las Vegas Aces,Las Vegas Aces
+2026-06-09,Chicago Sky,4W-7L,Atlanta Dream,7W-3L,27.73,Atlanta Dream,Atlanta Dream
+2026-06-09,Minnesota Lynx,9W-2L,Dallas Wings,7W-3L,67.79,Minnesota Lynx,Minnesota Lynx
+2026-06-09,Golden State Valkyries,6W-5L,Phoenix Mercury,4W-8L,74.37,Golden State Valkyries,Golden State Valkyries
+2026-06-10,Toronto Tempo,6W-5L,Connecticut Sun,2W-11L,81.53,Toronto Tempo,Toronto Tempo
+2026-06-10,Seattle Storm,3W-10L,Los Angeles Sparks,5W-6L,38.87,Los Angeles Sparks,Los Angeles Sparks
+2026-06-11,Indiana Fever,6W-5L,Chicago Sky,4W-8L,75.01,Indiana Fever,Indiana Fever
+2026-06-11,Atlanta Dream,8W-3L,New York Liberty,8W-4L,59.79,Atlanta Dream,New York Liberty
+2026-06-11,Dallas Wings,7W-4L,Phoenix Mercury,4W-9L,73.39,Dallas Wings,Dallas Wings
+2026-06-11,Portland Fire,6W-7L,Las Vegas Aces,8W-3L,31.69,Las Vegas Aces,Las Vegas Aces
+2026-06-12,Washington Mystics,4W-6L,Toronto Tempo,7W-5L,41.23,Toronto Tempo,Washington Mystics
+2026-06-12,Seattle Storm,3W-11L,Golden State Valkyries,7W-5L,27.31,Golden State Valkyries,Golden State Valkyries
+2026-06-13,Connecticut Sun,2W-12L,Indiana Fever,7W-5L,23.33,Indiana Fever,Indiana Fever
+2026-06-13,Las Vegas Aces,9W-3L,Minnesota Lynx,10W-2L,40.32,Minnesota Lynx,Las Vegas Aces
+2026-06-13,Portland Fire,6W-8L,Dallas Wings,8W-4L,32.3,Dallas Wings,Portland Fire
+2026-06-13,Phoenix Mercury,4W-10L,Los Angeles Sparks,6W-6L,42.19,Los Angeles Sparks,Los Angeles Sparks
+2026-06-14,New York Liberty,9W-4L,Washington Mystics,5W-6L,75.01,New York Liberty,New York Liberty
+2026-06-14,Toronto Tempo,7W-6L,Atlanta Dream,8W-4L,47.69,Atlanta Dream,Atlanta Dream
