@@ -5,16 +5,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(r"C:\Users\davhu\Documents\wnba_win_probability")
 RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
 
-SEASONS = [
-    "2019",
-    "2020",
-    "2021",
-    "2022",
-    "2023",
-    "2024",
-    "2025",
-    "2026"
-]
+SEASONS = ["2019","2020","2021","2022","2023","2024","2025","2026"]
 
 def fetch_season_game_logs(season: str) -> pd.DataFrame:
     """

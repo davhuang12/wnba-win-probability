@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 import joblib
 import pandas as pd
@@ -11,7 +11,8 @@ PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
 DATASET_PATH = PROCESSED_DATA_DIR / "model_dataset_2026.csv"
 
 MODELS_DIR = PROJECT_ROOT / "models"
-MODEL_PATH = MODELS_DIR / "win_probability_model.joblib"
+WIN_MODEL_PATH = MODELS_DIR / "win_probability_model.joblib"
+SPREAD_MODEL_PATH = MODELS_DIR / "spread_model.joblib"
 
 WNBA_LEAGUE_ID = "10"
 
@@ -23,24 +24,12 @@ FEATURES = [
     "PLUS_MINUS_DIFF",
     "PLUS_MINUS_DIFF_10",
     "REST_DIFF",
+    "ORTG_DIFF", "ORTG_DIFF_10",
+    "DRTG_DIFF", "DRTG_DIFF_10"
 ]
 
 
 def fetch_todays_games(game_date: str) -> pd.DataFrame:
-    """
-    Pulls today's WNBA schedule (home/away team IDs) from the
-    ScoreboardV3 endpoint.
-
-    ScoreboardV3's game_header dataset has no team ID columns at all -
-    only gameId/gameCode/status fields. Team IDs live in line_score,
-    with two rows per gameId (one per team) and no explicit home/away
-    flag. To recover home/away, we parse gameCode, which encodes the
-    matchup as "YYYYMMDD/AWAYHOME" (e.g. "20260617/WASCON" = Washington
-    @ Connecticut), and match those tricodes against line_score's
-    teamTricode column.
-
-    game_date format: "YYYY-MM-DD"
-    """
 
     print(f"Fetching WNBA schedule for {game_date}...")
 
@@ -104,6 +93,8 @@ def load_latest_team_stats() -> pd.DataFrame:
         "GAME_DATE", "HOME_TEAM_ID", "HOME_TEAM",
         "HOME_WIN_PCT", "HOME_PTS_AVG", "HOME_PLUS_MINUS_AVG",
         "HOME_ROLL_WIN_PCT_10", "HOME_ROLL_PTS_10", "HOME_ROLL_PLUS_MINUS_10",
+        "HOME_ORTG_AVG", "HOME_DRTG_AVG",
+        "HOME_ROLL_ORTG_10", "HOME_ROLL_DRTG_10",
     ]].rename(columns={
         "HOME_TEAM_ID": "TEAM_ID",
         "HOME_TEAM": "TEAM_NAME",
@@ -113,12 +104,18 @@ def load_latest_team_stats() -> pd.DataFrame:
         "HOME_ROLL_WIN_PCT_10": "ROLL_WIN_PCT_10",
         "HOME_ROLL_PTS_10": "ROLL_PTS_10",
         "HOME_ROLL_PLUS_MINUS_10": "ROLL_PLUS_MINUS_10",
+        "HOME_ORTG_AVG": "ORTG_AVG",
+        "HOME_DRTG_AVG": "DRTG_AVG",
+        "HOME_ROLL_ORTG_10": "ROLL_ORTG_10",
+        "HOME_ROLL_DRTG_10": "ROLL_DRTG_10",
     })
 
     away_rows = df[[
         "GAME_DATE", "AWAY_TEAM_ID", "AWAY_TEAM",
         "AWAY_WIN_PCT", "AWAY_PTS_AVG", "AWAY_PLUS_MINUS_AVG",
         "AWAY_ROLL_WIN_PCT_10", "AWAY_ROLL_PTS_10", "AWAY_ROLL_PLUS_MINUS_10",
+        "AWAY_ORTG_AVG", "AWAY_DRTG_AVG",
+        "AWAY_ROLL_ORTG_10", "AWAY_ROLL_DRTG_10",
     ]].rename(columns={
         "AWAY_TEAM_ID": "TEAM_ID",
         "AWAY_TEAM": "TEAM_NAME",
@@ -128,6 +125,10 @@ def load_latest_team_stats() -> pd.DataFrame:
         "AWAY_ROLL_WIN_PCT_10": "ROLL_WIN_PCT_10",
         "AWAY_ROLL_PTS_10": "ROLL_PTS_10",
         "AWAY_ROLL_PLUS_MINUS_10": "ROLL_PLUS_MINUS_10",
+        "AWAY_ORTG_AVG": "ORTG_AVG",
+        "AWAY_DRTG_AVG": "DRTG_AVG",
+        "AWAY_ROLL_ORTG_10": "ROLL_ORTG_10",
+        "AWAY_ROLL_DRTG_10": "ROLL_DRTG_10",
     })
 
     all_team_rows = pd.concat([home_rows, away_rows], ignore_index=True)
@@ -146,7 +147,7 @@ def build_features_for_game(
     game_date: pd.Timestamp,
 ) -> dict:
     """
-    Builds the 7 model features for one upcoming game, using each team's
+    Builds the model features for one upcoming game, using each team's
     most recent pre-game stats. Returns None if either team has no
     history yet in model_dataset_2026.csv (e.g. very first games of the
     season, or a TEAM_ID mismatch).
@@ -169,6 +170,10 @@ def build_features_for_game(
         "PLUS_MINUS_DIFF": home["PLUS_MINUS_AVG"] - away["PLUS_MINUS_AVG"],
         "PLUS_MINUS_DIFF_10": home["ROLL_PLUS_MINUS_10"] - away["ROLL_PLUS_MINUS_10"],
         "REST_DIFF": home_rest_days - away_rest_days,
+        "ORTG_DIFF": home["ORTG_AVG"] - away["ORTG_AVG"],
+        "ORTG_DIFF_10": home["ROLL_ORTG_10"] - away["ROLL_ORTG_10"],
+        "DRTG_DIFF": home["DRTG_AVG"] - away["DRTG_AVG"],
+        "DRTG_DIFF_10": home["ROLL_DRTG_10"] - away["ROLL_DRTG_10"],
         "HOME_TEAM": home["TEAM_NAME"],
         "AWAY_TEAM": away["TEAM_NAME"],
     }
@@ -176,7 +181,8 @@ def build_features_for_game(
 
 def predict_games(games_df: pd.DataFrame, game_date: pd.Timestamp) -> pd.DataFrame:
     team_stats = load_latest_team_stats()
-    model = joblib.load(MODEL_PATH)
+    win_model = joblib.load(WIN_MODEL_PATH)
+    spread_model = joblib.load(SPREAD_MODEL_PATH)
 
     results = []
 
@@ -191,20 +197,29 @@ def predict_games(games_df: pd.DataFrame, game_date: pd.Timestamp) -> pd.DataFra
             continue
 
         X = pd.DataFrame([{k: feature_row[k] for k in FEATURES}])
-        home_win_prob = model.predict_proba(X)[0][1]
+
+        home_win_prob = win_model.predict_proba(X)[0][1]
+        predicted_margin = spread_model.predict(X)[0]
+
+        # Positive margin = home favored, negative = away favored.
+        if predicted_margin >= 0:
+            spread_label = f"{feature_row['HOME_TEAM']} -{predicted_margin:.1f}"
+        else:
+            spread_label = f"{feature_row['AWAY_TEAM']} -{abs(predicted_margin):.1f}"
 
         results.append({
             "HOME_TEAM": feature_row["HOME_TEAM"],
             "AWAY_TEAM": feature_row["AWAY_TEAM"],
             "HOME_WIN_PROBABILITY": round(home_win_prob, 4),
             "AWAY_WIN_PROBABILITY": round(1 - home_win_prob, 4),
+            "PREDICTED_SPREAD": spread_label,
         })
 
     return pd.DataFrame(results)
 
 
 def main():
-    today = date.today()
+    today = date.today() + timedelta(days=1)
     today_str = today.strftime("%Y-%m-%d")
     today_ts = pd.Timestamp(today)
 

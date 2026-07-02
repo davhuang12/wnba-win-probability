@@ -5,6 +5,7 @@ from build_dataset import (
     PROJECT_ROOT,
     load_raw_data,
     create_basic_columns,
+    create_opponent_columns,
     create_rolling_features,
     create_game_level_dataset,
     create_model_features,
@@ -28,6 +29,7 @@ def main():
 
     df = load_raw_data([SEASON])
     df = create_basic_columns(df)
+    df = create_opponent_columns(df)
     df = create_rolling_features(df)
     df = create_game_level_dataset(df)
     df = create_model_features(df)
