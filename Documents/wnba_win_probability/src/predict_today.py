@@ -25,7 +25,8 @@ FEATURES = [
     "PLUS_MINUS_DIFF_10",
     "REST_DIFF",
     "ORTG_DIFF", "ORTG_DIFF_10",
-    "DRTG_DIFF", "DRTG_DIFF_10"
+    "DRTG_DIFF", "DRTG_DIFF_10",
+    "OREB_RATE_DIFF", "OREB_RATE_DIFF_10"
 ]
 
 
@@ -52,8 +53,6 @@ def fetch_todays_games(game_date: str) -> pd.DataFrame:
     for _, game in game_header.iterrows():
         game_id = game["gameId"]
 
-        # gameCode looks like "20260617/WASCON" -> tricodes are the
-        # last 6 characters, first 3 = away, last 3 = home.
         matchup_code = game["gameCode"].split("/")[-1]
         away_tricode = matchup_code[:3]
         home_tricode = matchup_code[3:]
@@ -82,8 +81,7 @@ def fetch_todays_games(game_date: str) -> pd.DataFrame:
 def load_latest_team_stats() -> pd.DataFrame:
     """
     Loads model_dataset_2026.csv and returns, for each team, their most
-    recent pre-game stats (whichever side - home or away - their last
-    played game was on) plus the date of that last game.
+    recent pre-game stats plus the date of that last game.
     """
 
     df = pd.read_csv(DATASET_PATH)
@@ -95,6 +93,7 @@ def load_latest_team_stats() -> pd.DataFrame:
         "HOME_ROLL_WIN_PCT_10", "HOME_ROLL_PTS_10", "HOME_ROLL_PLUS_MINUS_10",
         "HOME_ORTG_AVG", "HOME_DRTG_AVG",
         "HOME_ROLL_ORTG_10", "HOME_ROLL_DRTG_10",
+        "HOME_SEASON_OREB_RATE", "HOME_ROLL_OREB_RATE_10",
     ]].rename(columns={
         "HOME_TEAM_ID": "TEAM_ID",
         "HOME_TEAM": "TEAM_NAME",
@@ -108,6 +107,8 @@ def load_latest_team_stats() -> pd.DataFrame:
         "HOME_DRTG_AVG": "DRTG_AVG",
         "HOME_ROLL_ORTG_10": "ROLL_ORTG_10",
         "HOME_ROLL_DRTG_10": "ROLL_DRTG_10",
+        "HOME_SEASON_OREB_RATE": "SEASON_OREB_RATE",
+        "HOME_ROLL_OREB_RATE_10": "ROLL_OREB_RATE_10",
     })
 
     away_rows = df[[
@@ -116,6 +117,7 @@ def load_latest_team_stats() -> pd.DataFrame:
         "AWAY_ROLL_WIN_PCT_10", "AWAY_ROLL_PTS_10", "AWAY_ROLL_PLUS_MINUS_10",
         "AWAY_ORTG_AVG", "AWAY_DRTG_AVG",
         "AWAY_ROLL_ORTG_10", "AWAY_ROLL_DRTG_10",
+        "AWAY_SEASON_OREB_RATE", "AWAY_ROLL_OREB_RATE_10",
     ]].rename(columns={
         "AWAY_TEAM_ID": "TEAM_ID",
         "AWAY_TEAM": "TEAM_NAME",
@@ -129,11 +131,12 @@ def load_latest_team_stats() -> pd.DataFrame:
         "AWAY_DRTG_AVG": "DRTG_AVG",
         "AWAY_ROLL_ORTG_10": "ROLL_ORTG_10",
         "AWAY_ROLL_DRTG_10": "ROLL_DRTG_10",
+        "AWAY_SEASON_OREB_RATE": "SEASON_OREB_RATE",
+        "AWAY_ROLL_OREB_RATE_10": "ROLL_OREB_RATE_10",
     })
 
     all_team_rows = pd.concat([home_rows, away_rows], ignore_index=True)
 
-    # Keep only each team's single most recent game.
     all_team_rows = all_team_rows.sort_values("GAME_DATE")
     latest_per_team = all_team_rows.groupby("TEAM_ID").tail(1).set_index("TEAM_ID")
 
@@ -146,12 +149,6 @@ def build_features_for_game(
     team_stats: pd.DataFrame,
     game_date: pd.Timestamp,
 ) -> dict:
-    """
-    Builds the model features for one upcoming game, using each team's
-    most recent pre-game stats. Returns None if either team has no
-    history yet in model_dataset_2026.csv (e.g. very first games of the
-    season, or a TEAM_ID mismatch).
-    """
 
     if home_team_id not in team_stats.index or away_team_id not in team_stats.index:
         return None
@@ -174,6 +171,8 @@ def build_features_for_game(
         "ORTG_DIFF_10": home["ROLL_ORTG_10"] - away["ROLL_ORTG_10"],
         "DRTG_DIFF": home["DRTG_AVG"] - away["DRTG_AVG"],
         "DRTG_DIFF_10": home["ROLL_DRTG_10"] - away["ROLL_DRTG_10"],
+        "OREB_RATE_DIFF": home["SEASON_OREB_RATE"] - away["SEASON_OREB_RATE"],
+        "OREB_RATE_DIFF_10": home["ROLL_OREB_RATE_10"] - away["ROLL_OREB_RATE_10"],
         "HOME_TEAM": home["TEAM_NAME"],
         "AWAY_TEAM": away["TEAM_NAME"],
     }
@@ -201,7 +200,6 @@ def predict_games(games_df: pd.DataFrame, game_date: pd.Timestamp) -> pd.DataFra
         home_win_prob = win_model.predict_proba(X)[0][1]
         predicted_margin = spread_model.predict(X)[0]
 
-        # Positive margin = home favored, negative = away favored.
         if predicted_margin >= 0:
             spread_label = f"{feature_row['HOME_TEAM']} -{predicted_margin:.1f}"
         else:
@@ -219,7 +217,7 @@ def predict_games(games_df: pd.DataFrame, game_date: pd.Timestamp) -> pd.DataFra
 
 
 def main():
-    today = date.today() + timedelta(days=1)
+    today = date.today()
     today_str = today.strftime("%Y-%m-%d")
     today_ts = pd.Timestamp(today)
 

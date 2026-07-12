@@ -25,7 +25,8 @@ features = [
     "PLUS_MINUS_DIFF_10",
     "REST_DIFF",
     "ORTG_DIFF", "ORTG_DIFF_10",
-    "DRTG_DIFF", "DRTG_DIFF_10"
+    "DRTG_DIFF", "DRTG_DIFF_10",
+    "OREB_RATE_DIFF", "OREB_RATE_DIFF_10"
 ]
 
 def load_dataset() -> pd.DataFrame:

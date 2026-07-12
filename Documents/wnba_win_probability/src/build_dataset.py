@@ -106,6 +106,24 @@ def create_rolling_features(df: pd.DataFrame) -> pd.DataFrame:
         .transform(lambda x: x.shift(1).expanding(min_periods=3).mean())
     )
 
+    # Season OREB rate: cumulative OREB / cumulative possessions (pre-game)
+    df["SEASON_OREB"] = df.groupby(group_cols)["OREB"].transform(
+        lambda x: x.shift(1).expanding(min_periods=3).sum()
+    )
+    df["SEASON_POSS"] = df.groupby(group_cols)["GAME_POSS"].transform(
+        lambda x: x.shift(1).expanding(min_periods=3).sum()
+    )
+    df["SEASON_OREB_RATE"] = df["SEASON_OREB"] / df["SEASON_POSS"]
+
+    # Rolling 10-game OREB rate
+    df["ROLL_OREB_10"] = df.groupby(group_cols)["OREB"].transform(
+        lambda x: x.shift(1).rolling(10, min_periods=3).sum()
+    )
+    df["ROLL_POSS_10"] = df.groupby(group_cols)["GAME_POSS"].transform(
+        lambda x: x.shift(1).rolling(10, min_periods=3).sum()
+    )
+    df["ROLL_OREB_RATE_10"] = df["ROLL_OREB_10"] / df["ROLL_POSS_10"]
+
     # season offensive / defensive / net rating features
     # (sum of points over sum of possessions across the window — NOT an average of per-game rates)
     season_pts_sum = (
@@ -199,7 +217,9 @@ def create_game_level_dataset(df: pd.DataFrame) -> pd.DataFrame:
         "SEASON_NET_RTG_AVG",
         "ROLL_ORTG_10",
         "ROLL_DRTG_10",
-        "ROLL_NET_RTG_10"
+        "ROLL_NET_RTG_10",
+        "SEASON_OREB_RATE",
+        "ROLL_OREB_RATE_10"
     ]
 
     # only keep these columns
@@ -225,7 +245,9 @@ def create_game_level_dataset(df: pd.DataFrame) -> pd.DataFrame:
         "SEASON_NET_RTG_AVG": "HOME_NET_RTG_AVG",
         "ROLL_ORTG_10": "HOME_ROLL_ORTG_10",
         "ROLL_DRTG_10": "HOME_ROLL_DRTG_10",
-        "ROLL_NET_RTG_10": "HOME_ROLL_NET_RTG_10"
+        "ROLL_NET_RTG_10": "HOME_ROLL_NET_RTG_10",
+        "SEASON_OREB_RATE" : "HOME_SEASON_OREB_RATE",
+        "ROLL_OREB_RATE_10": "HOME_ROLL_OREB_RATE_10"
     })
 
     away = away.rename(columns={
@@ -247,7 +269,9 @@ def create_game_level_dataset(df: pd.DataFrame) -> pd.DataFrame:
         "SEASON_NET_RTG_AVG": "AWAY_NET_RTG_AVG",
         "ROLL_ORTG_10": "AWAY_ROLL_ORTG_10",
         "ROLL_DRTG_10": "AWAY_ROLL_DRTG_10",
-        "ROLL_NET_RTG_10": "AWAY_ROLL_NET_RTG_10"
+        "ROLL_NET_RTG_10": "AWAY_ROLL_NET_RTG_10",
+        "SEASON_OREB_RATE": "AWAY_SEASON_OREB_RATE",  # in away rename
+        "ROLL_OREB_RATE_10": "AWAY_ROLL_OREB_RATE_10",
     })
 
     games = pd.merge(
@@ -286,6 +310,9 @@ def create_model_features(df: pd.DataFrame) -> pd.DataFrame:
 
     df["NET_RTG_DIFF"] = (df["HOME_NET_RTG_AVG"] - df["AWAY_NET_RTG_AVG"])
     df["NET_RTG_DIFF_10"] = (df["HOME_ROLL_NET_RTG_10"] - df["AWAY_ROLL_NET_RTG_10"])
+
+    df["OREB_RATE_DIFF"] = df["HOME_SEASON_OREB_RATE"] - df["AWAY_SEASON_OREB_RATE"]
+    df["OREB_RATE_DIFF_10"] = df["HOME_ROLL_OREB_RATE_10"] - df["AWAY_ROLL_OREB_RATE_10"]
 
     return df
 
