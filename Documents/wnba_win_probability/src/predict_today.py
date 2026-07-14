@@ -26,7 +26,8 @@ FEATURES = [
     "REST_DIFF",
     "ORTG_DIFF", "ORTG_DIFF_10",
     "DRTG_DIFF", "DRTG_DIFF_10",
-    "OREB_RATE_DIFF", "OREB_RATE_DIFF_10"
+    "OREB_RATE_DIFF", "OREB_RATE_DIFF_10",
+    "FG3M_DIFF", "FG3M_DIFF_10"
 ]
 
 
@@ -94,6 +95,7 @@ def load_latest_team_stats() -> pd.DataFrame:
         "HOME_ORTG_AVG", "HOME_DRTG_AVG",
         "HOME_ROLL_ORTG_10", "HOME_ROLL_DRTG_10",
         "HOME_SEASON_OREB_RATE", "HOME_ROLL_OREB_RATE_10",
+        "HOME_SEASON_FG3M_AVG", "HOME_ROLL_FG3M_10"
     ]].rename(columns={
         "HOME_TEAM_ID": "TEAM_ID",
         "HOME_TEAM": "TEAM_NAME",
@@ -109,6 +111,8 @@ def load_latest_team_stats() -> pd.DataFrame:
         "HOME_ROLL_DRTG_10": "ROLL_DRTG_10",
         "HOME_SEASON_OREB_RATE": "SEASON_OREB_RATE",
         "HOME_ROLL_OREB_RATE_10": "ROLL_OREB_RATE_10",
+        "HOME_SEASON_FG3M_AVG": "SEASON_FG3M_AVG",
+        "HOME_ROLL_FG3M_10": "ROLL_FG3M_10"
     })
 
     away_rows = df[[
@@ -118,6 +122,7 @@ def load_latest_team_stats() -> pd.DataFrame:
         "AWAY_ORTG_AVG", "AWAY_DRTG_AVG",
         "AWAY_ROLL_ORTG_10", "AWAY_ROLL_DRTG_10",
         "AWAY_SEASON_OREB_RATE", "AWAY_ROLL_OREB_RATE_10",
+        "AWAY_SEASON_FG3M_AVG", "AWAY_ROLL_FG3M_10"
     ]].rename(columns={
         "AWAY_TEAM_ID": "TEAM_ID",
         "AWAY_TEAM": "TEAM_NAME",
@@ -133,6 +138,8 @@ def load_latest_team_stats() -> pd.DataFrame:
         "AWAY_ROLL_DRTG_10": "ROLL_DRTG_10",
         "AWAY_SEASON_OREB_RATE": "SEASON_OREB_RATE",
         "AWAY_ROLL_OREB_RATE_10": "ROLL_OREB_RATE_10",
+        "AWAY_SEASON_FG3M_AVG": "SEASON_FG3M_AVG",
+        "AWAY_ROLL_FG3M_10": "ROLL_FG3M_10"
     })
 
     all_team_rows = pd.concat([home_rows, away_rows], ignore_index=True)
@@ -173,6 +180,8 @@ def build_features_for_game(
         "DRTG_DIFF_10": home["ROLL_DRTG_10"] - away["ROLL_DRTG_10"],
         "OREB_RATE_DIFF": home["SEASON_OREB_RATE"] - away["SEASON_OREB_RATE"],
         "OREB_RATE_DIFF_10": home["ROLL_OREB_RATE_10"] - away["ROLL_OREB_RATE_10"],
+        "FG3M_DIFF": home["SEASON_FG3M_AVG"] - away["SEASON_FG3M_AVG"],
+        "FG3M_DIFF_10": home["ROLL_FG3M_10"] - away["ROLL_FG3M_10"],
         "HOME_TEAM": home["TEAM_NAME"],
         "AWAY_TEAM": away["TEAM_NAME"],
     }

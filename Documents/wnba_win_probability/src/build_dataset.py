@@ -174,6 +174,16 @@ def create_rolling_features(df: pd.DataFrame) -> pd.DataFrame:
         .transform(lambda x: x.shift(1).rolling(10, min_periods=3).sum())
     )
 
+    df["SEASON_FG3M_AVG"] = (
+        df.groupby(group_cols)["FG3M"]
+        .transform(lambda x: x.shift(1).expanding(min_periods=3).mean())
+    )
+
+    df["ROLL_FG3M_10"] = (
+        df.groupby(group_cols)["FG3M"]
+        .transform(lambda x: x.shift(1).rolling(10, min_periods=3).mean())
+    )
+
     df["ROLL_ORTG_10"] = 100 * roll_pts_sum / roll_poss_sum
     df["ROLL_DRTG_10"] = 100 * roll_opp_pts_sum / roll_poss_sum
     df["ROLL_NET_RTG_10"] = df["ROLL_ORTG_10"] - df["ROLL_DRTG_10"]
@@ -219,7 +229,9 @@ def create_game_level_dataset(df: pd.DataFrame) -> pd.DataFrame:
         "ROLL_DRTG_10",
         "ROLL_NET_RTG_10",
         "SEASON_OREB_RATE",
-        "ROLL_OREB_RATE_10"
+        "ROLL_OREB_RATE_10",
+        "SEASON_FG3M_AVG",
+        "ROLL_FG3M_10"
     ]
 
     # only keep these columns
@@ -247,7 +259,9 @@ def create_game_level_dataset(df: pd.DataFrame) -> pd.DataFrame:
         "ROLL_DRTG_10": "HOME_ROLL_DRTG_10",
         "ROLL_NET_RTG_10": "HOME_ROLL_NET_RTG_10",
         "SEASON_OREB_RATE" : "HOME_SEASON_OREB_RATE",
-        "ROLL_OREB_RATE_10": "HOME_ROLL_OREB_RATE_10"
+        "ROLL_OREB_RATE_10": "HOME_ROLL_OREB_RATE_10",
+        "SEASON_FG3M_AVG": "HOME_SEASON_FG3M_AVG",
+        "ROLL_FG3M_10": "HOME_ROLL_FG3M_10"
     })
 
     away = away.rename(columns={
@@ -270,8 +284,10 @@ def create_game_level_dataset(df: pd.DataFrame) -> pd.DataFrame:
         "ROLL_ORTG_10": "AWAY_ROLL_ORTG_10",
         "ROLL_DRTG_10": "AWAY_ROLL_DRTG_10",
         "ROLL_NET_RTG_10": "AWAY_ROLL_NET_RTG_10",
-        "SEASON_OREB_RATE": "AWAY_SEASON_OREB_RATE",  # in away rename
+        "SEASON_OREB_RATE": "AWAY_SEASON_OREB_RATE",
         "ROLL_OREB_RATE_10": "AWAY_ROLL_OREB_RATE_10",
+        "SEASON_FG3M_AVG": "AWAY_SEASON_FG3M_AVG",
+        "ROLL_FG3M_10": "AWAY_ROLL_FG3M_10"
     })
 
     games = pd.merge(
@@ -314,6 +330,8 @@ def create_model_features(df: pd.DataFrame) -> pd.DataFrame:
     df["OREB_RATE_DIFF"] = df["HOME_SEASON_OREB_RATE"] - df["AWAY_SEASON_OREB_RATE"]
     df["OREB_RATE_DIFF_10"] = df["HOME_ROLL_OREB_RATE_10"] - df["AWAY_ROLL_OREB_RATE_10"]
 
+    df["FG3M_DIFF"] = df["HOME_SEASON_FG3M_AVG"] - df["AWAY_SEASON_FG3M_AVG"]
+    df["FG3M_DIFF_10"] = df["HOME_ROLL_FG3M_10"] - df["AWAY_ROLL_FG3M_10"]
     return df
 
 
