@@ -106,30 +106,6 @@ def create_rolling_features(df: pd.DataFrame) -> pd.DataFrame:
         .transform(lambda x: x.shift(1).expanding(min_periods=3).mean())
     )
 
-    # EFG% components
-    df["SEASON_FGM"] = df.groupby(group_cols)["FGM"].transform(
-        lambda x: x.shift(1).expanding(min_periods=3).sum()
-    )
-    df["SEASON_FG3M"] = df.groupby(group_cols)["FG3M"].transform(
-        lambda x: x.shift(1).expanding(min_periods=3).sum()
-    )
-    df["SEASON_FGA"] = df.groupby(group_cols)["FGA"].transform(
-        lambda x: x.shift(1).expanding(min_periods=3).sum()
-    )
-
-    df["ROLL_FGM_10"] = df.groupby(group_cols)["FGM"].transform(
-        lambda x: x.shift(1).rolling(10, min_periods=3).sum()
-    )
-    df["ROLL_FG3M_10"] = df.groupby(group_cols)["FG3M"].transform(
-        lambda x: x.shift(1).rolling(10, min_periods=3).sum()
-    )
-    df["ROLL_FGA_10"] = df.groupby(group_cols)["FGA"].transform(
-        lambda x: x.shift(1).rolling(10, min_periods=3).sum()
-    )
-
-    df["SEASON_EFG"] = (df["SEASON_FGM"] + 0.5 * df["SEASON_FG3M"]) / df["SEASON_FGA"]
-    df["ROLL_EFG_10"] = (df["ROLL_FGM_10"] + 0.5 * df["ROLL_FG3M_10"]) / df["ROLL_FGA_10"]
-
     #calculating possessions and rolling possessions for OREB_RATE and TOV_RATE
     df["SEASON_POSS"] = df.groupby(group_cols)["GAME_POSS"].transform(
         lambda x: x.shift(1).expanding(min_periods=3).sum()
@@ -265,7 +241,6 @@ def create_game_level_dataset(df: pd.DataFrame) -> pd.DataFrame:
         "SEASON_OREB_RATE","ROLL_OREB_RATE_10",
         "SEASON_FG3M_AVG","ROLL_FG3M_AVG_10",
         "SEASON_TOV_RATE", "ROLL_TOV_RATE_10",
-        "SEASON_EFG", "ROLL_EFG_10"
     ]
 
     # only keep these columns
@@ -298,8 +273,6 @@ def create_game_level_dataset(df: pd.DataFrame) -> pd.DataFrame:
         "ROLL_FG3M_AVG_10": "HOME_ROLL_FG3M_AVG_10",
         "SEASON_TOV_RATE": "HOME_SEASON_TOV_RATE",
         "ROLL_TOV_RATE_10": "HOME_ROLL_TOV_RATE_10",
-        "SEASON_EFG" : "HOME_SEASON_EFG",
-        "ROLL_EFG_10" : "HOME_ROLL_EFG_10"
     })
 
     away = away.rename(columns={
@@ -328,8 +301,6 @@ def create_game_level_dataset(df: pd.DataFrame) -> pd.DataFrame:
         "ROLL_FG3M_AVG_10": "AWAY_ROLL_FG3M_AVG_10",
         "SEASON_TOV_RATE": "AWAY_SEASON_TOV_RATE",
         "ROLL_TOV_RATE_10": "AWAY_ROLL_TOV_RATE_10",
-        "SEASON_EFG" : "AWAY_SEASON_EFG",
-        "ROLL_EFG_10" : "AWAY_ROLL_EFG_10"
     })
 
     games = pd.merge(
@@ -377,9 +348,6 @@ def create_model_features(df: pd.DataFrame) -> pd.DataFrame:
 
     df["TOV_RATE_DIFF"] = df["HOME_SEASON_TOV_RATE"] - df["AWAY_SEASON_TOV_RATE"]
     df["TOV_RATE_DIFF_10"] = df["HOME_ROLL_TOV_RATE_10"] - df["AWAY_ROLL_TOV_RATE_10"]
-
-    df["EFG_DIFF"] = df["HOME_SEASON_EFG"] - df["AWAY_SEASON_EFG"]
-    df["EFG_DIFF_10"] = df["HOME_ROLL_EFG_10"] - df["AWAY_ROLL_EFG_10"]
 
     return df
 

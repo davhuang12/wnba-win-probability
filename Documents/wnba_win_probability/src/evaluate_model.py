@@ -31,8 +31,7 @@ FEATURES = [
     "DRTG_DIFF", "DRTG_DIFF_10",
     "OREB_RATE_DIFF", "OREB_RATE_DIFF_10",
     "FG3M_DIFF", "FG3M_DIFF_10",
-    "TOV_RATE_DIFF","TOV_RATE_DIFF_10",
-    "EFG_DIFF", "EFG_DIFF_10"
+    "TOV_RATE_DIFF","TOV_RATE_DIFF_10"
 ]
 
 def load_dataset() -> pd.DataFrame:
