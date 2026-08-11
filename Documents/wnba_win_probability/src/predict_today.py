@@ -17,12 +17,9 @@ SPREAD_MODEL_PATH = MODELS_DIR / "spread_model.joblib"
 WNBA_LEAGUE_ID = "10"
 
 FEATURES = [
-    "WIN_PCT_DIFF",
-    "WIN_PCT_DIFF_10",
-    "PTS_DIFF",
-    "PTS_DIFF_10",
-    "PLUS_MINUS_DIFF",
-    "PLUS_MINUS_DIFF_10",
+    "WIN_PCT_DIFF", "WIN_PCT_DIFF_10",
+    "PTS_DIFF", "PTS_DIFF_10",
+    "PLUS_MINUS_DIFF","PLUS_MINUS_DIFF_10",
     "REST_DIFF",
     "ORTG_DIFF", "ORTG_DIFF_10",
     "DRTG_DIFF", "DRTG_DIFF_10",
@@ -214,6 +211,7 @@ def predict_games(games_df: pd.DataFrame, game_date: pd.Timestamp) -> pd.DataFra
         else:
             spread_label = f"{feature_row['AWAY_TEAM']} -{abs(predicted_margin):.1f}"
 
+
         results.append({
             "HOME_TEAM": feature_row["HOME_TEAM"],
             "AWAY_TEAM": feature_row["AWAY_TEAM"],
@@ -221,6 +219,7 @@ def predict_games(games_df: pd.DataFrame, game_date: pd.Timestamp) -> pd.DataFra
             "AWAY_WIN_PROBABILITY": round(1 - home_win_prob, 4),
             "PREDICTED_SPREAD": spread_label,
         })
+
 
     return pd.DataFrame(results)
 

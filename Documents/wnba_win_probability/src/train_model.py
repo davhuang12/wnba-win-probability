@@ -16,18 +16,17 @@ MODELS_DIR = PROJECT_ROOT / "models"
 WIN_MODEL_PATH = MODELS_DIR / "win_probability_model.joblib"
 SPREAD_MODEL_PATH = MODELS_DIR / "spread_model.joblib"
 
-features = [
-    "WIN_PCT_DIFF",
-    "WIN_PCT_DIFF_10",
-    "PTS_DIFF",
-    "PTS_DIFF_10",
-    "PLUS_MINUS_DIFF",
-    "PLUS_MINUS_DIFF_10",
+FEATURES = [
+    "WIN_PCT_DIFF", "WIN_PCT_DIFF_10",
+    "PTS_DIFF", "PTS_DIFF_10",
+    "PLUS_MINUS_DIFF","PLUS_MINUS_DIFF_10",
     "REST_DIFF",
     "ORTG_DIFF", "ORTG_DIFF_10",
     "DRTG_DIFF", "DRTG_DIFF_10",
     "OREB_RATE_DIFF", "OREB_RATE_DIFF_10",
-    "FG3M_DIFF", "FG3M_DIFF_10"
+    "FG3M_DIFF", "FG3M_DIFF_10",
+    "TOV_RATE_DIFF","TOV_RATE_DIFF_10",
+    "EFG_DIFF", "EFG_DIFF_10"
 ]
 
 def load_dataset() -> pd.DataFrame:
@@ -53,7 +52,7 @@ def train_wl_model(df: pd.DataFrame) -> None:
     # Sort test games before creating X_test and results.
     # This keeps every output column aligned.
 
-    X_train = train_df[features]
+    X_train = train_df[FEATURES]
     y_train = train_df["HOME_WIN"]
 
     model = Pipeline([
@@ -85,7 +84,7 @@ def train_spread_model(df: pd.DataFrame) -> None:
 
     train_df["HOME_MARGIN"] = train_df["HOME_PTS"] - train_df["AWAY_PTS"]
 
-    X_train = train_df[features]
+    X_train = train_df[FEATURES]
     y_train = train_df["HOME_MARGIN"]
 
     model = Pipeline([

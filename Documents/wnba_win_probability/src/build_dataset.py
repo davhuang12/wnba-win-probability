@@ -106,23 +106,64 @@ def create_rolling_features(df: pd.DataFrame) -> pd.DataFrame:
         .transform(lambda x: x.shift(1).expanding(min_periods=3).mean())
     )
 
+    # EFG% components
+    df["SEASON_FGM"] = df.groupby(group_cols)["FGM"].transform(
+        lambda x: x.shift(1).expanding(min_periods=3).sum()
+    )
+    df["SEASON_FG3M"] = df.groupby(group_cols)["FG3M"].transform(
+        lambda x: x.shift(1).expanding(min_periods=3).sum()
+    )
+    df["SEASON_FGA"] = df.groupby(group_cols)["FGA"].transform(
+        lambda x: x.shift(1).expanding(min_periods=3).sum()
+    )
+
+    df["ROLL_FGM_10"] = df.groupby(group_cols)["FGM"].transform(
+        lambda x: x.shift(1).rolling(10, min_periods=3).sum()
+    )
+    df["ROLL_FG3M_10"] = df.groupby(group_cols)["FG3M"].transform(
+        lambda x: x.shift(1).rolling(10, min_periods=3).sum()
+    )
+    df["ROLL_FGA_10"] = df.groupby(group_cols)["FGA"].transform(
+        lambda x: x.shift(1).rolling(10, min_periods=3).sum()
+    )
+
+    df["SEASON_EFG"] = (df["SEASON_FGM"] + 0.5 * df["SEASON_FG3M"]) / df["SEASON_FGA"]
+    df["ROLL_EFG_10"] = (df["ROLL_FGM_10"] + 0.5 * df["ROLL_FG3M_10"]) / df["ROLL_FGA_10"]
+
+    #calculating possessions and rolling possessions for OREB_RATE and TOV_RATE
+    df["SEASON_POSS"] = df.groupby(group_cols)["GAME_POSS"].transform(
+        lambda x: x.shift(1).expanding(min_periods=3).sum()
+    )
+
+    df["ROLL_POSS_10"] = df.groupby(group_cols)["GAME_POSS"].transform(
+        lambda x: x.shift(1).rolling(10, min_periods=3).sum()
+    )
     # Season OREB rate: cumulative OREB / cumulative possessions (pre-game)
     df["SEASON_OREB"] = df.groupby(group_cols)["OREB"].transform(
         lambda x: x.shift(1).expanding(min_periods=3).sum()
     )
-    df["SEASON_POSS"] = df.groupby(group_cols)["GAME_POSS"].transform(
-        lambda x: x.shift(1).expanding(min_periods=3).sum()
-    )
+
     df["SEASON_OREB_RATE"] = df["SEASON_OREB"] / df["SEASON_POSS"]
 
     # Rolling 10-game OREB rate
     df["ROLL_OREB_10"] = df.groupby(group_cols)["OREB"].transform(
         lambda x: x.shift(1).rolling(10, min_periods=3).sum()
     )
-    df["ROLL_POSS_10"] = df.groupby(group_cols)["GAME_POSS"].transform(
+
+    df["ROLL_OREB_RATE_10"] = df["ROLL_OREB_10"] / df["ROLL_POSS_10"]
+
+    #TOV AND TOV RATE
+    df["SEASON_TOV"] = df.groupby(group_cols)["TOV"].transform(
+        lambda x: x.shift(1).expanding(min_periods=3).sum()
+    )
+
+    df["ROLL_TOV_10"] = df.groupby(group_cols)["TOV"].transform(
         lambda x: x.shift(1).rolling(10, min_periods=3).sum()
     )
-    df["ROLL_OREB_RATE_10"] = df["ROLL_OREB_10"] / df["ROLL_POSS_10"]
+
+    df["SEASON_TOV_RATE"] = df["SEASON_TOV"] / df["SEASON_POSS"]
+    df["ROLL_TOV_RATE_10"] = df["ROLL_TOV_10"] / df["ROLL_POSS_10"]
+
 
     # season offensive / defensive / net rating features
     # (sum of points over sum of possessions across the window — NOT an average of per-game rates)
@@ -179,7 +220,7 @@ def create_rolling_features(df: pd.DataFrame) -> pd.DataFrame:
         .transform(lambda x: x.shift(1).expanding(min_periods=3).mean())
     )
 
-    df["ROLL_FG3M_10"] = (
+    df["ROLL_FG3M_AVG_10"] = (
         df.groupby(group_cols)["FG3M"]
         .transform(lambda x: x.shift(1).rolling(10, min_periods=3).mean())
     )
@@ -211,27 +252,20 @@ def create_game_level_dataset(df: pd.DataFrame) -> pd.DataFrame:
         "GAME_DATE",
         "TEAM_ID",
         "TEAM_NAME",
-        "WIN",
-        "PTS",
+        "WIN", "PTS",
         "SEASON_WIN_PCT",
-        "SEASON_PTS_AVG",
-        "SEASON_PLUS_MINUS_AVG",
+        "SEASON_PTS_AVG","ROLL_PTS_10",
+        "SEASON_PLUS_MINUS_AVG","ROLL_PLUS_MINUS_10",
         "ROLL_WIN_PCT_10",
-        "ROLL_PTS_10",
-        "ROLL_PLUS_MINUS_10",
         "REST_DAYS",
-        "SEASON_WINS",
-        "SEASON_LOSSES",
-        "SEASON_ORTG_AVG",
-        "SEASON_DRTG_AVG",
-        "SEASON_NET_RTG_AVG",
-        "ROLL_ORTG_10",
-        "ROLL_DRTG_10",
-        "ROLL_NET_RTG_10",
-        "SEASON_OREB_RATE",
-        "ROLL_OREB_RATE_10",
-        "SEASON_FG3M_AVG",
-        "ROLL_FG3M_10"
+        "SEASON_WINS", "SEASON_LOSSES",
+        "SEASON_ORTG_AVG","ROLL_ORTG_10",
+        "SEASON_DRTG_AVG","ROLL_DRTG_10",
+        "SEASON_NET_RTG_AVG","ROLL_NET_RTG_10",
+        "SEASON_OREB_RATE","ROLL_OREB_RATE_10",
+        "SEASON_FG3M_AVG","ROLL_FG3M_AVG_10",
+        "SEASON_TOV_RATE", "ROLL_TOV_RATE_10",
+        "SEASON_EFG", "ROLL_EFG_10"
     ]
 
     # only keep these columns
@@ -261,7 +295,11 @@ def create_game_level_dataset(df: pd.DataFrame) -> pd.DataFrame:
         "SEASON_OREB_RATE" : "HOME_SEASON_OREB_RATE",
         "ROLL_OREB_RATE_10": "HOME_ROLL_OREB_RATE_10",
         "SEASON_FG3M_AVG": "HOME_SEASON_FG3M_AVG",
-        "ROLL_FG3M_10": "HOME_ROLL_FG3M_10"
+        "ROLL_FG3M_AVG_10": "HOME_ROLL_FG3M_AVG_10",
+        "SEASON_TOV_RATE": "HOME_SEASON_TOV_RATE",
+        "ROLL_TOV_RATE_10": "HOME_ROLL_TOV_RATE_10",
+        "SEASON_EFG" : "HOME_SEASON_EFG",
+        "ROLL_EFG_10" : "HOME_ROLL_EFG_10"
     })
 
     away = away.rename(columns={
@@ -287,7 +325,11 @@ def create_game_level_dataset(df: pd.DataFrame) -> pd.DataFrame:
         "SEASON_OREB_RATE": "AWAY_SEASON_OREB_RATE",
         "ROLL_OREB_RATE_10": "AWAY_ROLL_OREB_RATE_10",
         "SEASON_FG3M_AVG": "AWAY_SEASON_FG3M_AVG",
-        "ROLL_FG3M_10": "AWAY_ROLL_FG3M_10"
+        "ROLL_FG3M_AVG_10": "AWAY_ROLL_FG3M_AVG_10",
+        "SEASON_TOV_RATE": "AWAY_SEASON_TOV_RATE",
+        "ROLL_TOV_RATE_10": "AWAY_ROLL_TOV_RATE_10",
+        "SEASON_EFG" : "AWAY_SEASON_EFG",
+        "ROLL_EFG_10" : "AWAY_ROLL_EFG_10"
     })
 
     games = pd.merge(
@@ -331,7 +373,14 @@ def create_model_features(df: pd.DataFrame) -> pd.DataFrame:
     df["OREB_RATE_DIFF_10"] = df["HOME_ROLL_OREB_RATE_10"] - df["AWAY_ROLL_OREB_RATE_10"]
 
     df["FG3M_DIFF"] = df["HOME_SEASON_FG3M_AVG"] - df["AWAY_SEASON_FG3M_AVG"]
-    df["FG3M_DIFF_10"] = df["HOME_ROLL_FG3M_10"] - df["AWAY_ROLL_FG3M_10"]
+    df["FG3M_DIFF_10"] = df["HOME_ROLL_FG3M_AVG_10"] - df["AWAY_ROLL_FG3M_AVG_10"]
+
+    df["TOV_RATE_DIFF"] = df["HOME_SEASON_TOV_RATE"] - df["AWAY_SEASON_TOV_RATE"]
+    df["TOV_RATE_DIFF_10"] = df["HOME_ROLL_TOV_RATE_10"] - df["AWAY_ROLL_TOV_RATE_10"]
+
+    df["EFG_DIFF"] = df["HOME_SEASON_EFG"] - df["AWAY_SEASON_EFG"]
+    df["EFG_DIFF_10"] = df["HOME_ROLL_EFG_10"] - df["AWAY_ROLL_EFG_10"]
+
     return df
 
 
