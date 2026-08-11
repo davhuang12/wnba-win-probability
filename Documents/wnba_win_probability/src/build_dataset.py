@@ -360,11 +360,12 @@ def clean_dataset(df: pd.DataFrame) -> pd.DataFrame:
 def save_datasets(df: pd.DataFrame) -> None:
     PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    train_df = df[df["SEASON"] != "2026"]
+    train_df = df
     train_df.to_csv(TRAIN_OUTPUT_PATH, index=False)
 
     print(f"Saved model dataset to: {TRAIN_OUTPUT_PATH}")
 
+    #TESTING WILL BE SKEWED BECAUSE IM TRAINING ON 2026 DATA TOO.
     test_df = df[df["SEASON"] == "2026"]
     test_df.to_csv(TEST_OUTPUT_PATH, index=False)
     print(f"Saved model dataset to: {TEST_OUTPUT_PATH}")
