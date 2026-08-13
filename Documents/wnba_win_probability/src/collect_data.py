@@ -51,13 +51,6 @@ def save_raw_data(df: pd.DataFrame, season: str) -> None:
 
 
 def main():
-    """
-    Main function for this file.
-
-    For now, we only download one season.
-    Later, we can expand this to multiple seasons.
-    """
-
     for season in SEASONS:
         df = fetch_season_game_logs(season)
         save_raw_data(df, season)

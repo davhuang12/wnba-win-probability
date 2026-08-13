@@ -5,10 +5,10 @@ import pandas as pd
 
 from nba_api.stats.endpoints import scoreboardv3
 
-from build_dataset import PROJECT_ROOT
+from build_dataset import PROJECT_ROOT, create_basic_columns, create_opponent_columns
 
-PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
-DATASET_PATH = PROCESSED_DATA_DIR / "model_dataset_2026.csv"
+RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
+RAW_2026_PATH = RAW_DATA_DIR / "game_logs_2026.csv"
 
 MODELS_DIR = PROJECT_ROOT / "models"
 WIN_MODEL_PATH = MODELS_DIR / "win_probability_model.joblib"
@@ -79,79 +79,53 @@ def fetch_todays_games(game_date: str) -> pd.DataFrame:
 
 def load_latest_team_stats() -> pd.DataFrame:
     """
-    Loads model_dataset_2026.csv and returns, for each team, their most
-    recent pre-game stats plus the date of that last game.
+    Computes each team's current season and rolling-10-game averages
+    directly from every 2026 game they've played so far (no shift), so
+    their most recent game IS included. These are the stats to use for
+    predicting a team's NEXT (not yet played) game.
+
+    Requires data/raw/game_logs_2026.csv to be up to date -- run
+    collect_data.py or update_2026_dataset.py first if it isn't.
     """
 
-    df = pd.read_csv(DATASET_PATH)
+    df = pd.read_csv(RAW_2026_PATH)
     df["GAME_DATE"] = pd.to_datetime(df["GAME_DATE"])
 
-    home_rows = df[[
-        "GAME_DATE", "HOME_TEAM_ID", "HOME_TEAM",
-        "HOME_WIN_PCT", "HOME_PTS_AVG", "HOME_PLUS_MINUS_AVG",
-        "HOME_ROLL_WIN_PCT_10", "HOME_ROLL_PTS_10", "HOME_ROLL_PLUS_MINUS_10",
-        "HOME_ORTG_AVG", "HOME_DRTG_AVG",
-        "HOME_ROLL_ORTG_10", "HOME_ROLL_DRTG_10",
-        "HOME_SEASON_OREB_RATE", "HOME_ROLL_OREB_RATE_10",
-        "HOME_SEASON_FG3M_AVG", "HOME_ROLL_FG3M_AVG_10",
-        "HOME_SEASON_TOV_RATE", "HOME_ROLL_TOV_RATE_10"
-    ]].rename(columns={
-        "HOME_TEAM_ID": "TEAM_ID",
-        "HOME_TEAM": "TEAM_NAME",
-        "HOME_WIN_PCT": "WIN_PCT",
-        "HOME_PTS_AVG": "PTS_AVG",
-        "HOME_PLUS_MINUS_AVG": "PLUS_MINUS_AVG",
-        "HOME_ROLL_WIN_PCT_10": "ROLL_WIN_PCT_10",
-        "HOME_ROLL_PTS_10": "ROLL_PTS_10",
-        "HOME_ROLL_PLUS_MINUS_10": "ROLL_PLUS_MINUS_10",
-        "HOME_ORTG_AVG": "ORTG_AVG",
-        "HOME_DRTG_AVG": "DRTG_AVG",
-        "HOME_ROLL_ORTG_10": "ROLL_ORTG_10",
-        "HOME_ROLL_DRTG_10": "ROLL_DRTG_10",
-        "HOME_SEASON_OREB_RATE": "SEASON_OREB_RATE",
-        "HOME_ROLL_OREB_RATE_10": "ROLL_OREB_RATE_10",
-        "HOME_SEASON_FG3M_AVG": "SEASON_FG3M_AVG",
-        "HOME_ROLL_FG3M_AVG_10": "ROLL_FG3M_10",
-        "HOME_SEASON_TOV_RATE": "SEASON_TOV_RATE",
-        "HOME_ROLL_TOV_RATE_10": "ROLL_TOV_RATE_10"
-    })
+    df = create_basic_columns(df)
+    df = create_opponent_columns(df)
 
-    away_rows = df[[
-        "GAME_DATE", "AWAY_TEAM_ID", "AWAY_TEAM",
-        "AWAY_WIN_PCT", "AWAY_PTS_AVG", "AWAY_PLUS_MINUS_AVG",
-        "AWAY_ROLL_WIN_PCT_10", "AWAY_ROLL_PTS_10", "AWAY_ROLL_PLUS_MINUS_10",
-        "AWAY_ORTG_AVG", "AWAY_DRTG_AVG",
-        "AWAY_ROLL_ORTG_10", "AWAY_ROLL_DRTG_10",
-        "AWAY_SEASON_OREB_RATE", "AWAY_ROLL_OREB_RATE_10",
-        "AWAY_SEASON_FG3M_AVG", "AWAY_ROLL_FG3M_AVG_10",
-        "AWAY_SEASON_TOV_RATE", "AWAY_ROLL_TOV_RATE_10"
-    ]].rename(columns={
-        "AWAY_TEAM_ID": "TEAM_ID",
-        "AWAY_TEAM": "TEAM_NAME",
-        "AWAY_WIN_PCT": "WIN_PCT",
-        "AWAY_PTS_AVG": "PTS_AVG",
-        "AWAY_PLUS_MINUS_AVG": "PLUS_MINUS_AVG",
-        "AWAY_ROLL_WIN_PCT_10": "ROLL_WIN_PCT_10",
-        "AWAY_ROLL_PTS_10": "ROLL_PTS_10",
-        "AWAY_ROLL_PLUS_MINUS_10": "ROLL_PLUS_MINUS_10",
-        "AWAY_ORTG_AVG": "ORTG_AVG",
-        "AWAY_DRTG_AVG": "DRTG_AVG",
-        "AWAY_ROLL_ORTG_10": "ROLL_ORTG_10",
-        "AWAY_ROLL_DRTG_10": "ROLL_DRTG_10",
-        "AWAY_SEASON_OREB_RATE": "SEASON_OREB_RATE",
-        "AWAY_ROLL_OREB_RATE_10": "ROLL_OREB_RATE_10",
-        "AWAY_SEASON_FG3M_AVG": "SEASON_FG3M_AVG",
-        "AWAY_ROLL_FG3M_AVG_10": "ROLL_FG3M_10",
-        "AWAY_SEASON_TOV_RATE": "SEASON_TOV_RATE",
-        "AWAY_ROLL_TOV_RATE_10": "ROLL_TOV_RATE_10"
-    })
+    df = df.sort_values(["TEAM_ID", "GAME_DATE"])
 
-    all_team_rows = pd.concat([home_rows, away_rows], ignore_index=True)
+    rows = []
+    for team_id, team_df in df.groupby("TEAM_ID"):
+        last10 = team_df.tail(10)
 
-    all_team_rows = all_team_rows.sort_values("GAME_DATE")
-    latest_per_team = all_team_rows.groupby("TEAM_ID").tail(1).set_index("TEAM_ID")
+        season_poss = team_df["GAME_POSS"].sum()
+        roll_poss = last10["GAME_POSS"].sum()
 
-    return latest_per_team
+        rows.append({
+            "TEAM_ID": team_id,
+            "TEAM_NAME": team_df["TEAM_NAME"].iloc[-1],
+            "GAME_DATE": team_df["GAME_DATE"].iloc[-1],
+            "WIN_PCT": team_df["WIN"].mean(),
+            "PTS_AVG": team_df["PTS"].mean(),
+            "PLUS_MINUS_AVG": team_df["PLUS_MINUS"].mean(),
+            "ROLL_WIN_PCT_10": last10["WIN"].mean(),
+            "ROLL_PTS_10": last10["PTS"].mean(),
+            "ROLL_PLUS_MINUS_10": last10["PLUS_MINUS"].mean(),
+            "ORTG_AVG": 100 * team_df["PTS"].sum() / season_poss,
+            "DRTG_AVG": 100 * team_df["OPP_PTS"].sum() / season_poss,
+            "ROLL_ORTG_10": 100 * last10["PTS"].sum() / roll_poss,
+            "ROLL_DRTG_10": 100 * last10["OPP_PTS"].sum() / roll_poss,
+            "SEASON_OREB_RATE": team_df["OREB"].sum() / season_poss,
+            "ROLL_OREB_RATE_10": last10["OREB"].sum() / roll_poss,
+            "SEASON_FG3M_AVG": team_df["FG3M"].mean(),
+            "ROLL_FG3M_10": last10["FG3M"].mean(),
+            "SEASON_TOV_RATE": team_df["TOV"].sum() / season_poss,
+            "ROLL_TOV_RATE_10": last10["TOV"].sum() / roll_poss,
+        })
+
+    return pd.DataFrame(rows).set_index("TEAM_ID")
 
 
 def build_features_for_game(
@@ -234,7 +208,7 @@ def predict_games(games_df: pd.DataFrame, game_date: pd.Timestamp) -> pd.DataFra
 
 
 def main():
-    today = date.today()
+    today = date.today()# + timedelta(days=1)
     today_str = today.strftime("%Y-%m-%d")
     today_ts = pd.Timestamp(today)
 
@@ -253,4 +227,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()  
