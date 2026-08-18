@@ -208,7 +208,7 @@ def predict_games(games_df: pd.DataFrame, game_date: pd.Timestamp) -> pd.DataFra
 
 
 def main():
-    today = date.today()# + timedelta(days=1)
+    today = date.today() + timedelta(days=1)
     today_str = today.strftime("%Y-%m-%d")
     today_ts = pd.Timestamp(today)
 
